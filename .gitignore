@@ -1,0 +1,46 @@
+# 🐍 Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+*.sqlite3
+
+# 🕹️ Pygame / imágenes / assets temporales
+*.log
+*.tmp
+*.bak
+*.swp
+
+# 🔧 IDEs
+.vscode/
+.idea/
+*.code-workspace
+
+# 📦 Distribución
+dist/
+build/
+*.egg-info/
+
+# 📚 Documentación autogenerada
+docs/_build/
+
+# 🧪 Testing
+.coverage
+htmlcov/
+pytest_cache/
+.cache/
+
+# 🌐 Networking o sockets si usás multiplayer local
+*.sock
+
+# 📷 Capturas / exports temporales
+captures/
+exports/
+
+# 🚫 Archivos que no se deben versionar por defecto
+.DS_Store
+Thumbs.db
