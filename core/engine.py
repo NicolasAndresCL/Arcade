@@ -10,7 +10,8 @@ def run_game():
     screen = pygame.display.set_mode((640, 480))
     clock = pygame.time.Clock()
 
-    player = Player(300, 400)
+    screen_width, screen_height = 640, 480
+    player = Player(300, 400, screen_width, screen_height)
     enemies = pygame.sprite.Group()
     all_sprites = pygame.sprite.Group(player)
 
@@ -82,7 +83,7 @@ def run_game():
                 })
                 enemies.empty()
                 all_sprites.empty()
-                player = Player(300, 400)
+                player = Player(300, 400, screen_width, screen_height)
                 all_sprites.add(player)
                 spawn_timer = 0
 
