@@ -3,9 +3,10 @@ import pygame
 from core.engine import run_game
 from screens.main_menu import show_main_menu
 
+pygame.mixer.pre_init(44100, -16, 2, 512)
+pygame.init()
+
 async def main():
-    pygame.mixer.pre_init(44100, -16, 2, 512)
-    pygame.init()
     screen = pygame.display.set_mode((640, 480))
     pygame.display.set_caption("Space Shooter")
     
