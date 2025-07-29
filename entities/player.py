@@ -65,8 +65,12 @@ class Player(pygame.sprite.Sprite):
             self.rect.y += self.speed
             
     def shoot(self):
-        """Dispara un proyectil si no está en cooldown"""
+        """Dispara dos proyectiles paralelos si no está en cooldown"""
         if self.shoot_delay <= 0:
             self.shoot_delay = self.shoot_cooldown
-            return Bullet(self.rect.centerx, self.rect.top)
+            offset = 8  # Separación horizontal entre los proyectiles
+            y = self.rect.top
+            x1 = self.rect.centerx - offset
+            x2 = self.rect.centerx + offset
+            return [Bullet(x1, y), Bullet(x2, y)]
         return None

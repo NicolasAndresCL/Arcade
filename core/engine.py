@@ -72,10 +72,11 @@ async def run_game():
                 return "exit"
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    bullet = player.shoot()
-                    if bullet:
-                        bullets.add(bullet)
-                        all_sprites.add(bullet)
+                    bullets_fired = player.shoot()
+                    if bullets_fired:
+                        for bullet in bullets_fired:
+                            bullets.add(bullet)
+                            all_sprites.add(bullet)
                         if shoot_sound:
                             shoot_sound.play()
                 elif event.key in [pygame.K_LSHIFT, pygame.K_RSHIFT]:
