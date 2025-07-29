@@ -4,6 +4,7 @@ import os
 from entities.player import Player
 from entities.enemy import Enemy
 from screens.game_over import show_game_over
+from screens.pause import show_pause_screen
 from services.score import update_score
 from services.difficulty import get_difficulty
 from core.background import UniverseBackground
@@ -12,8 +13,7 @@ from core.background import UniverseBackground
 FONT_PATH = os.path.join("assets", "PressStart2P-Regular.ttf")
 
 async def run_game():
-    pygame.init()
-    screen = pygame.display.set_mode((640, 480))
+    screen = pygame.display.get_surface()
     clock = pygame.time.Clock()
 
     screen_width, screen_height = screen.get_size()
@@ -40,7 +40,7 @@ async def run_game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                return
+                return "exit"
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     # Disparar
@@ -48,6 +48,14 @@ async def run_game():
                     if bullet:
                         bullets.add(bullet)
                         all_sprites.add(bullet)
+                elif event.key == pygame.K_RETURN:
+                    # Pausar juego
+                    pause_action = show_pause_screen(screen)
+                    if pause_action == "menu":
+                        return "menu"
+                    elif pause_action == "exit":
+                        pygame.quit()
+                        return "exit"
 
         if game_state["running"]:
             # Actualizar y dibujar fondo tipo universo
@@ -127,4 +135,6 @@ async def run_game():
 
         clock.tick(60)
         await asyncio.sleep(0)  # 👈 Necesario para Pygbag (no lo saques)
+    
+    return "menu"  # Retornar al menú cuando termine el juego
 
