@@ -1,4 +1,7 @@
+import asyncio
 from core.engine import run_game
 
-if __name__ == "__main__":
-    run_game()
+async def main():
+    await run_game()
+
+asyncio.run(main())
