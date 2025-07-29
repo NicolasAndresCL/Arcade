@@ -6,28 +6,28 @@ def get_random_color():
         random.randint(0, 255),
         random.randint(0, 255)
     )
+
 def get_difficulty(score):
     """
     Retorna la configuración de dificultad según el puntaje y color aleatorio.
-    Progresión cada 500 puntos para mayor estabilidad.
+    Progresión cada 500 puntos hasta 100,000.
     """
-    if score < 500:
-        return {"max_enemies": 8, "min_speed": 2, "max_speed": 4, "color": get_random_color()}
-    elif score < 1000:
-        return {"max_enemies": 15, "min_speed": 3, "max_speed": 6, "color": get_random_color()}
-    elif score < 1500:
-        return {"max_enemies": 22, "min_speed": 4, "max_speed": 8, "color": get_random_color()}
-    elif score < 2000:
-        return {"max_enemies": 28, "min_speed": 5, "max_speed": 10, "color": get_random_color()}
-    elif score < 2500:
-        return {"max_enemies": 35, "min_speed": 6, "max_speed": 12, "color": get_random_color()}
-    elif score < 3000:
-        return {"max_enemies": 42, "min_speed": 7, "max_speed": 14, "color": get_random_color()}
-    elif score < 3500:
-        return {"max_enemies": 48, "min_speed": 8, "max_speed": 16, "color": get_random_color()}
-    elif score < 4000:
-        return {"max_enemies": 55, "min_speed": 9, "max_speed": 18, "color": get_random_color()}
-    elif score < 4500:
-        return {"max_enemies": 62, "min_speed": 10, "max_speed": 20, "color": get_random_color()}
-    else:
-        return {"max_enemies": 70, "min_speed": 12, "max_speed": 22, "color": get_random_color()}
+    # Valores base
+    base_enemies = 8
+    base_min_speed = 2
+    base_max_speed = 4
+    # Cada 500 puntos aumenta la dificultad
+    level = min(score // 500, 184)  # 100,000 // 500 = 200, pero limitamos a 184 para no pasar de 100,000
+    max_enemies = base_enemies + level * 2  # Sube 2 enemigos por nivel
+    min_speed = base_min_speed + level // 10  # Sube 1 cada 10 niveles
+    max_speed = base_max_speed + level // 5   # Sube 1 cada 5 niveles
+    # Limitar máximos razonables
+    max_enemies = min(max_enemies, 200)
+    min_speed = min(min_speed, 40)
+    max_speed = min(max_speed, 60)
+    return {
+        "max_enemies": max_enemies,
+        "min_speed": min_speed,
+        "max_speed": max_speed,
+        "color": get_random_color()
+    }

@@ -22,6 +22,7 @@ async def run_game():
     player = Player(300, 400, screen_width, screen_height)
     enemies = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
+    explosions = pygame.sprite.Group()
     all_sprites = pygame.sprite.Group(player)
     
     # Inicializar fondo tipo universo
@@ -31,10 +32,20 @@ async def run_game():
     game_state = {
         "running": True,
         "game_over": False,
-        "score": 0
+        "score": 0,
+        "bombs": 0,
+        "next_bomb_score": 1000
     }
 
     spawn_timer = 0
+
+    # Cargar sonidos
+    try:
+        shoot_sound = pygame.mixer.Sound(os.path.join("assets", "shoot.wav"))
+        destroy_sound = pygame.mixer.Sound(os.path.join("assets", "enemy_destroyed.wav"))
+        explosion_sound = pygame.mixer.Sound(os.path.join("assets", "explosion.wav"))
+    except Exception as e:
+        shoot_sound = destroy_sound = explosion_sound = None
 
     while True:
         for event in pygame.event.get():
@@ -48,6 +59,23 @@ async def run_game():
                     if bullet:
                         bullets.add(bullet)
                         all_sprites.add(bullet)
+                        if shoot_sound:
+                            shoot_sound.play()
+                elif event.key == pygame.K_LSHIFT or event.key == pygame.K_RSHIFT:
+                    # Usar bomba
+                    if game_state["bombs"] > 0:
+                        # Eliminar enemigos en radio de 300
+                        player_center = player.rect.center
+                        bomba_usada = False
+                        for enemy in list(enemies):
+                            if (enemy.rect.centerx - player_center[0]) ** 2 + (enemy.rect.centery - player_center[1]) ** 2 <= 300 ** 2:
+                                from entities.explosion import Explosion
+                                explosions.add(Explosion(enemy.rect.centerx, enemy.rect.centery, color=(255,80,80), max_radius=40, duration=18))
+                                enemy.kill()
+                                bomba_usada = True
+                        if bomba_usada and explosion_sound:
+                            explosion_sound.play()
+                        game_state["bombs"] -= 1
                 elif event.key == pygame.K_RETURN:
                     # Pausar juego
                     pause_action = show_pause_screen(screen)
@@ -81,6 +109,11 @@ async def run_game():
                 enemies_hit = pygame.sprite.spritecollide(bullet, enemies, True)
                 if enemies_hit:
                     bullet.kill()
+                    for enemy in enemies_hit:
+                        from entities.explosion import Explosion
+                        explosions.add(Explosion(enemy.rect.centerx, enemy.rect.centery, color=(255,200,50), max_radius=24, duration=14))
+                    if destroy_sound:
+                        destroy_sound.play()
                     # Sumar 100 puntos por cada enemigo eliminado
                     game_state["score"] += len(enemies_hit) * 100
 
@@ -101,6 +134,11 @@ async def run_game():
             # Actualizar score (solo por tiempo, los puntos por enemigos se suman en la colisión)
             update_score(game_state, amount=1)
 
+            # Ganar bomba solo cuando el score alcanza el siguiente múltiplo de 1000
+            if game_state["score"] >= game_state["next_bomb_score"]:
+                game_state["bombs"] += 1
+                game_state["next_bomb_score"] += 1000
+
             # Dibujar sprites y score
             all_sprites.draw(screen)
             try:
@@ -110,11 +148,20 @@ async def run_game():
 
             score_text = score_font.render(f"Score: {game_state['score']}", True, (255, 255, 255))
             screen.blit(score_text, (10, 10))
+            # Mostrar bombas
+            bomb_text = score_font.render(f"Bombs: {game_state['bombs']}", True, (255, 255, 0))
+            screen.blit(bomb_text, (10, 30))
+
+            # Actualizar y dibujar explosiones
+            explosions.update()
+            explosions.draw(screen)
 
             pygame.display.flip()
 
         elif game_state["game_over"]:
-            show_game_over(screen, game_state["score"])
+            result = show_game_over(screen, game_state["score"])
+            if result == "exit":
+                return "exit"
 
             keys = pygame.key.get_pressed()
             if keys[pygame.K_RETURN]:
@@ -122,7 +169,9 @@ async def run_game():
                 game_state.update({
                     "running": True,
                     "game_over": False,
-                    "score": 0
+                    "score": 0,
+                    "bombs": 0,
+                    "next_bomb_score": 1000
                 })
                 enemies.empty()
                 bullets.empty()
